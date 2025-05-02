@@ -7,4 +7,8 @@ requires-python = ">=3.12"
 dependencies = ["mcp>=1.6.0", "pandas>=2.2.3", "ulid>=1.1"]
 
 [dependency-groups]
-dev = ["pytest>=8.3.5", "pytest-cov>=6.1.1"]
+dev = [
+    "pandas-stubs>=2.2.3.250308",
+    "pytest>=8.3.5",
+ "pytest-cov>=6.1.1",
+]
