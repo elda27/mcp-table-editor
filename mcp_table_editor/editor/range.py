@@ -26,31 +26,21 @@ class Range:
             return pd.Index(keys)
         if isinstance(keys, slice):
             return pd.Index(range(keys.start, keys.stop, keys.step))
+        if isinstance(keys, pd.Index):
+            return keys
         return pd.Index([keys])
 
     def is_column_range(self) -> bool:
         return self.column is not None
 
     def get_columns(self) -> pd.Index:
-        if self.column is None:
-            return pd.Index([])
-        if isinstance(self.column, (list, tuple)):
-            return pd.Index(self.column)
-        if isinstance(self.column, slice):
-            return pd.Index(range(self.column.start, self.column.stop))
-        return pd.Index([self.column])
+        return self._get_index(self.column)
 
     def is_index_range(self) -> bool:
         return self.row is not None
 
     def get_index(self) -> pd.Index:
-        if self.row is None:
-            return pd.Index([])
-        if isinstance(self.row, (list, tuple)):
-            return pd.Index(self.row)
-        if isinstance(self.row, slice):
-            return pd.Index(range(self.row.start, self.row.stop))
-        return pd.Index([self.row])
+        return self._get_index(self.row)
 
     def is_location_range(self) -> bool:
         return self.cell is not None

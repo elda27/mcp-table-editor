@@ -23,19 +23,42 @@ class Selector:
     def __init__(
         self, df: pd.DataFrame, cell_range: Range, editor_config: EditorConfig
     ) -> None:
-        self.df = df
+        # Ensure the selector works on a copy to maintain immutability
+        self.df = df.copy()
         self.range = cell_range
         self.editor_config = editor_config
 
+    def _update(self, df: pd.DataFrame) -> None:
+        """
+        Update the internal dataframe with a new one.
+        This is used to maintain immutability in the editor.
+        """
+        self.df = df
+
+    def selected_dataframe(self) -> pd.DataFrame:
+        """
+        Get the selected dataframe based on the range.
+        """
+        return self._get_range(self.range)
+
     def drop(self) -> pd.DataFrame:
-        df = self.df
+        """Drop the selected range from the dataframe.
+
+        Returns
+        -------
+        pd.DataFrame
+            A new dataframe after dropping the selected range.
+        """
+        df = self.df.copy()  # Work on a copy
         if self.range.is_column_range():
-            df.drop(columns=self.range.get_columns(), inplace=True)
+            df = df.drop(columns=self.range.get_columns())  # Not inplace
         if self.range.is_index_range():
-            df.drop(index=self.range.get_index(), inplace=True)
+            df = df.drop(index=self.range.get_index())  # Not inplace
         if self.range.is_location_range():
-            df.drop(columns=self.range.cell, inplace=True)
-        return df
+            _, columns_to_drop = self.range.get_location()
+            df = df.drop(columns=columns_to_drop)  # Not inplace
+        self._update(df)
+        return df  # Return the modified copy
 
     def _get_range(self, range: Range) -> pd.DataFrame:
         df = self.df
@@ -48,25 +71,58 @@ class Selector:
             return df.loc[index, columns]
         raise KeyError("Invalid range")
 
-    def _set_value(self, range: Range, value: Any) -> pd.DataFrame:
-        df = self.df
-        if range.is_column_range():
-            df[range.get_columns()] = value
-        if range.is_index_range():
-            df.loc[range.get_index()] = value
-        if range.is_location_range():
-            index, columns = self.range.get_location()
-            df.loc[index, columns] = value
-        return df
-
     def delete(self) -> pd.DataFrame:
-        return self._set_value(self.range, pd.NA)
+        """Delete (set to NA) the selected range from the dataframe.
+
+        Returns
+        -------
+        pd.DataFrame
+            A new dataframe with the selected range set to NA.
+        """
+        df = self.df.copy()  # Work on a copy
+        if self.range.is_column_range():
+            df[self.range.get_columns()] = pd.NA
+        if self.range.is_index_range():
+            df.loc[self.range.get_index()] = pd.NA
+        if self.range.is_location_range():
+            index, columns = self.range.get_location()
+            df.loc[index, columns] = pd.NA
+        self._update(df)
+        return df  # Return the modified copy
 
     def get(self) -> pd.DataFrame:
+        """Get the selected range from the dataframe.
+
+        Returns
+        -------
+        pd.DataFrame
+            The selected range from the dataframe.
+        """
         return self._get_range(self.range)
 
     def update(self, value: Any) -> pd.DataFrame:
-        return self._set_value(self.range, value)
+        """Update the selected range in the dataframe with a new value.
+
+        Parameters
+        ----------
+        value : Any
+            The value to update the selected range with.
+
+        Returns
+        -------
+        pd.DataFrame
+            A new dataframe with the selected range updated.
+        """
+        df = self.df.copy()  # Work on a copy
+        if self.range.is_column_range():
+            df[self.range.get_columns()] = value
+        if self.range.is_index_range():
+            df.loc[self.range.get_index()] = value
+        if self.range.is_location_range():
+            index, columns = self.range.get_location()
+            df.loc[index, columns] = value
+        self._update(df)
+        return df  # Return the modified copy
 
     def insert(
         self,
@@ -74,23 +130,57 @@ class Selector:
         value: Any = pd.NA,
         insert_rule: InsertRule = InsertRule.ABOVE,
     ) -> pd.DataFrame:
-        df = self.df
+        """Insert a value (row/column) into the dataframe.
+
+        Parameters
+        ----------
+        pos : int | str | None, optional
+            Offset where the column will be inserted. Used only for column insertion.
+            Defaults to inserting at the end.
+        value : Any, optional
+            Value to fill the new row/column with. Defaults to pd.NA.
+        insert_rule : InsertRule, optional
+            Rule for filling values (e.g., ABOVE for ffill). Default is ABOVE.
+
+        Returns
+        -------
+        pd.DataFrame
+            A new dataframe with the value inserted.
+
+        Raises
+        ------
+        ValueError
+            If trying to insert with a location range (ambiguous operation).
+        TypeError
+            If the range type is invalid for insertion.
+        """
+        df = self.df.copy()  # Work on a copy
+
         if self.range.is_column_range():
-            cols = self.range.get_columns()
-            df = df.insert(pos or len(df.columns), cols)
-        if self.range.is_index_range():
-            index = self.range.get_index()
-            df = pd.concat(
-                [df, pd.DataFrame(value, index=index, columns=df.columns)],
-                axis=0,
-            )
-        if self.range.is_location_range():
-            index, columns = self.range.get_location()
-            df = df.insert(pos or len(df), columns, value)
-            df = pd.concat(
-                [df, pd.DataFrame(value, index=index, columns=df.columns)],
-                axis=0,
-            )
+            cols_to_insert = self.range.get_columns()
+            insert_pos = pos if pos is not None else len(df.columns)
+            if isinstance(insert_pos, str):
+                raise TypeError(
+                    "Position 'pos' must be an integer for column insertion."
+                )
+
+            current_pos = insert_pos
+            for i, col in enumerate(cols_to_insert):
+                df.insert(loc=current_pos + i, column=col, value=value)
+
+        elif self.range.is_index_range():
+            index_to_insert = self.range.get_index()
+            new_rows_df = pd.DataFrame(value, index=index_to_insert, columns=df.columns)
+            df = pd.concat([df, new_rows_df], axis=0)
+
+        elif self.range.is_location_range():
+            raise ValueError("Insert operation is not supported for location ranges.")
+        else:
+            raise TypeError("Invalid range type for insert operation.")
+
         if insert_rule == InsertRule.ABOVE:
             df = df.ffill(axis=0)
-        return df
+
+        self._update(df)
+
+        return df  # Return the modified copy

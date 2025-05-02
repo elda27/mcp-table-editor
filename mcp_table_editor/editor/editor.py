@@ -22,6 +22,12 @@ class Editor:
     def select(self, range: Range) -> Selector:
         return Selector(self.table, range, self.config)
 
+    def select_all(self) -> Selector:
+        """
+        Select all cells in the table.
+        """
+        return self.select(Range(row=self.table.index, column=self.table.columns))
+
     @property
     def columns(self) -> pd.Index:
         return self.table.columns
