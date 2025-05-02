@@ -5,6 +5,7 @@ import pandas as pd
 
 from mcp_table_editor.editor.config import EditorConfig
 from mcp_table_editor.editor.range import Range
+from mcp_table_editor.misc import merge_index
 
 
 class InsertRule(str, Enum):
@@ -35,6 +36,13 @@ class Selector:
         """
         self.df = df
 
+    def display_dataframe(self, columns: pd.Index, rows: pd.Index) -> pd.DataFrame:
+        """
+        Get the selected dataframe for display.
+        This is used to get the dataframe in a format suitable for display.
+        """
+        return self._get_range(self.range, option_columns=columns, option_rows=rows)
+
     def selected_dataframe(self) -> pd.DataFrame:
         """
         Get the selected dataframe based on the range.
@@ -60,14 +68,31 @@ class Selector:
         self._update(df)
         return df  # Return the modified copy
 
-    def _get_range(self, range: Range) -> pd.DataFrame:
+    def _get_range(
+        self,
+        range: Range,
+        option_columns: pd.Index | None = None,
+        option_rows: pd.Index | None = None,
+    ) -> pd.DataFrame:
         df = self.df
         if self.range.is_column_range():
-            return df[range.get_columns()]
+            if option_columns is not None:
+                df = df[merge_index(df, range.get_columns(), option_columns)]
+            else:
+                df = df[range.get_columns()]
+            return df
         if self.range.is_index_range():
+            if option_rows is not None:
+                df = df.loc[merge_index(df, range.get_index(), option_rows)]
+            else:
+                df = df.loc[range.get_index()]
             return df.loc[range.get_index()]
         if self.range.is_location_range():
             index, columns = range.get_location()
+            if option_columns is not None:
+                columns = merge_index(df, columns, option_columns)
+            if option_rows is not None:
+                index = merge_index(df, index, option_rows)
             return df.loc[index, columns]
         raise KeyError("Invalid range")
 

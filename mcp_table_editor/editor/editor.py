@@ -15,7 +15,10 @@ class Editor:
         config: EditorConfig | None = None,
     ) -> None:
         self.id = ulid()
-        self.table = table or pd.DataFrame()
+        if table is None:
+            table = pd.DataFrame()
+        else:
+            self.table = table
         self.schema: dict[str, str] = {}
         self.config = config or EditorConfig.default()
 
@@ -30,8 +33,14 @@ class Editor:
 
     @property
     def columns(self) -> pd.Index:
+        # Get the columns of the table.
+        # TODO: If the table has too many columns, we should return a subset of the columns.
+        # Note that it is controlled by the config.
         return self.table.columns
 
     @property
     def index(self) -> pd.Index:
+        # Get the rows of the table.
+        # TODO: If the table has too many rows, we should return a subset of the rows.
+        # Note that it is controlled by the config.
         return self.table.index
