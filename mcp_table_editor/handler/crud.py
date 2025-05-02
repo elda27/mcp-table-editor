@@ -1,9 +1,9 @@
 from enum import Enum
-from typing import Any, Literal, TypeVar
+from typing import Any
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, Field
 
-from mcp_table_editor.editor.editor import Editor
+from mcp_table_editor.editor import Editor, InsertRule, Range
 from mcp_table_editor.editor.range import Range
 from mcp_table_editor.handler.base import BaseHandler
 
@@ -37,6 +37,13 @@ _MAPPING_OPERATION_DESCRIPTION = {
     Operation.REMOVE: "Drop data from the table.",
 }
 
+_OPERATION_SHAPE_CHANGES = (
+    Operation.INSERT,
+    Operation.UPDATE,
+    Operation.DROP,
+    Operation.REMOVE,
+)
+
 
 class CrudInputSchema(BaseModel):
     """
@@ -59,12 +66,12 @@ class CrudInputSchema(BaseModel):
         None,
         description="Row index to be used in the operation.",
     )
-    value: str | None = Field(
+    value: Any | None = Field(
         None,
         description="Value to be used in the operation. it is used for insert and update operations.",
     )
-    insert_rule: Literal["above", "empty"] = Field(
-        "above",
+    insert_rule: InsertRule = Field(
+        InsertRule.ABOVE,
         description="Fill rule to be used in the insert operation.",
     )
     insert_offset: int | None = Field(
@@ -87,13 +94,13 @@ class CrudOutputSchema(BaseModel):
         description="CRUD method to be performed.",
     )
 
-    response: Any = Field(
+    response: str | None = Field(
         None,
-        description="Result of the operation.",
+        description="CSV representation of the result. a result contains the selection of the table.",
     )
-    json_content: dict[str, Any] | None = Field(
+    json_content: list[dict[str, Any]] | None = Field(
         None,
-        description="JSON representation of the result.",
+        description="JSON representation of the result. a result contains the selection of the table.",
     )
 
 
@@ -123,30 +130,31 @@ class CrudHandler(BaseHandler[CrudInputSchema, CrudOutputSchema]):
             )
         elif args.column:
             # Create a range object based on the input data
-            cell_range = Range(cell=(self.editor.index, args.column))
+            cell_range = Range(column=args.column)
         elif args.row:
             # Create a range object based on the input data
-            cell_range = Range(cell=(args.row, self.editor.columns))
+            cell_range = Range(row=args.row)
         else:
             raise ValueError("Either column or row must be provided.")
 
         # Perform the CRUD operation based on the method
         selector = self.editor.select(cell_range)
         if args.method in (Operation.GET, Operation.RETRIEVE):
-            response = selector.get()
+            selector.get()
         elif args.method == Operation.INSERT:
-            response = selector.insert(
-                args.value, pos=args.insert_offset, insert_rule=args.insert_rule
+            selector.insert(
+                value=args.value, pos=args.insert_offset, insert_rule=args.insert_rule
             )
         elif args.method == Operation.UPDATE:
-            response = selector.update(args.value)
+            selector.update(args.value)
         elif args.method == Operation.DELETE:
-            response = selector.delete()
+            selector.delete()
         elif args.method in (Operation.DROP, Operation.REMOVE):
-            response = selector.drop()
+            selector.drop()
         else:
             raise ValueError(f"Unsupported method: {args.method}")
 
+        response = selector.display_dataframe(self.editor.columns, self.editor.index)
         return CrudOutputSchema(
             method=args.method,
             response=response.to_csv(),
