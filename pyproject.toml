@@ -4,8 +4,7 @@ version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = [
-    "mcp>=1.6.0",
- "pandas>=2.2.3",
- "ulid>=1.1",
-]
+dependencies = ["mcp>=1.6.0", "pandas>=2.2.3", "ulid>=1.1"]
+
+[dependency-groups]
+dev = ["pytest>=8.3.5", "pytest-cov>=6.1.1"]
