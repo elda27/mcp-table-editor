@@ -44,6 +44,11 @@ _OPERATION_SHAPE_CHANGES = (
     Operation.REMOVE,
 )
 
+_OPERATION_GETTER_METHOD = (
+    Operation.GET,
+    Operation.RETRIEVE,
+)
+
 
 class CrudInputSchema(BaseModel):
     """
@@ -58,17 +63,20 @@ class CrudInputSchema(BaseModel):
             for op, desc in _MAPPING_OPERATION_DESCRIPTION.items()
         ),
     )
-    column: list[str] | None = Field(
+    columns: list[str] | None = Field(
         None,
         description="Column name to be used in the operation.",
     )
-    row: list[int] | None = Field(
+    rows: list[int] | None = Field(
         None,
         description="Row index to be used in the operation.",
     )
     value: Any | None = Field(
         None,
         description="Value to be used in the operation. it is used for insert and update operations.",
+    )
+    return_columns: list[str] | None = Field(
+        None, description="Columns to be returned in the response."
     )
     insert_rule: InsertRule = Field(
         InsertRule.ABOVE,
@@ -123,17 +131,17 @@ class CrudHandler(BaseHandler[CrudInputSchema, CrudOutputSchema]):
         """
         Handle the CRUD operation based on the input data.
         """
-        if args.column and args.row:
+        if args.columns and args.rows:
             # Create a range object based on the input data
             cell_range = Range(
-                cell=(args.row, args.column),
+                cell=(args.rows, args.columns),
             )
-        elif args.column:
+        elif args.columns:
             # Create a range object based on the input data
-            cell_range = Range(column=args.column)
-        elif args.row:
+            cell_range = Range(column=args.columns)
+        elif args.rows:
             # Create a range object based on the input data
-            cell_range = Range(row=args.row)
+            cell_range = Range(row=args.rows)
         else:
             raise ValueError("Either column or row must be provided.")
 
@@ -154,7 +162,19 @@ class CrudHandler(BaseHandler[CrudInputSchema, CrudOutputSchema]):
         else:
             raise ValueError(f"Unsupported method: {args.method}")
 
-        response = selector.display_dataframe(self.editor.columns, self.editor.index)
+        if args.return_columns is not None:
+            # If return_columns is provided, filter the response to include only those columns
+            response = selector.display_dataframe(
+                args.return_columns, self.editor.index
+            )
+        elif args.method in _OPERATION_GETTER_METHOD:
+            # If the operation changes the shape of the table, return the entire table
+            response = selector.selected_dataframe()
+        else:
+            response = selector.display_dataframe(
+                self.editor.columns, self.editor.index
+            )
+
         return CrudOutputSchema(
             method=args.method,
             response=response.to_csv(),

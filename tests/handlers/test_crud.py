@@ -39,8 +39,8 @@ def test_crud_handler_get_column(editor: Editor, sample_df: pd.DataFrame):
     """Test GET operation with column selection."""
     args = CrudInputSchema(
         method=Operation.GET,
-        column=["A", "C"],
-        row=None,
+        columns=["A", "C"],
+        rows=None,
         value=None,
         insert_rule=InsertRule.ABOVE,
         insert_offset=None,
@@ -62,8 +62,8 @@ def test_crud_handler_get_row(editor: Editor, sample_df: pd.DataFrame):
     """Test GET operation with row selection."""
     args = CrudInputSchema(
         method=Operation.GET,
-        row=[10, 12],
-        column=None,
+        rows=[10, 12],
+        columns=None,
         value=None,
         insert_rule=InsertRule.ABOVE,
         insert_offset=None,
@@ -83,8 +83,8 @@ def test_crud_handler_get_cell(editor: Editor, sample_df: pd.DataFrame):
     """Test GET operation with cell selection."""
     args = CrudInputSchema(
         method=Operation.GET,
-        row=[10, 11],
-        column=["B", "C"],
+        rows=[10, 11],
+        columns=["B", "C"],
         value=None,
         insert_rule=InsertRule.ABOVE,
         insert_offset=None,
@@ -108,9 +108,9 @@ def test_crud_handler_update_column(editor: Editor, sample_df: pd.DataFrame):
     update_value = 100
     args = CrudInputSchema(
         method=Operation.UPDATE,
-        column=["B"],
+        columns=["B"],
         value=update_value,
-        row=None,
+        rows=None,
         insert_rule=InsertRule.ABOVE,
         insert_offset=None,
     )
@@ -134,8 +134,8 @@ def test_crud_handler_update_cell(editor: Editor, sample_df: pd.DataFrame):
     update_value = 0
     args = CrudInputSchema(
         method=Operation.UPDATE,
-        row=[10],
-        column=["A", "C"],
+        rows=[10],
+        columns=["A", "C"],
         value=update_value,
         insert_rule=InsertRule.ABOVE,
         insert_offset=None,
@@ -160,8 +160,8 @@ def test_crud_handler_delete_column(editor: Editor, sample_df: pd.DataFrame):
     """Test DELETE operation with column selection."""
     args = CrudInputSchema(
         method=Operation.DELETE,
-        column=["A", "C"],
-        row=None,
+        columns=["A", "C"],
+        rows=None,
         value=None,
         insert_rule=InsertRule.ABOVE,
         insert_offset=None,
@@ -191,8 +191,8 @@ def test_crud_handler_drop_column(editor: Editor, sample_df: pd.DataFrame):
     """Test DROP operation with column selection."""
     args = CrudInputSchema(
         method=Operation.DROP,
-        column=["B"],
-        row=None,
+        columns=["B"],
+        rows=None,
         value=None,
         insert_rule=InsertRule.ABOVE,
         insert_offset=None,
@@ -214,8 +214,8 @@ def test_crud_handler_drop_row(editor: Editor, sample_df: pd.DataFrame):
     """Test DROP operation with row selection."""
     args = CrudInputSchema(
         method=Operation.DROP,
-        row=[11],
-        column=None,
+        rows=[11],
+        columns=None,
         value=None,
         insert_rule=InsertRule.ABOVE,
         insert_offset=None,
@@ -237,13 +237,13 @@ def test_crud_handler_drop_row(editor: Editor, sample_df: pd.DataFrame):
 
 def test_crud_handler_insert_column(editor: Editor, sample_df: pd.DataFrame):
     """Test INSERT operation for a column."""
-    insert_value = "10"
+    insert_value = 10
     args = CrudInputSchema(
         method=Operation.INSERT,
-        column=["D"],  # New column name
+        columns=["D"],  # New column name
         value=insert_value,
         insert_offset=1,  # Position to insert at
-        row=None,
+        rows=None,
         insert_rule=InsertRule.ABOVE,  # Explicitly add default
     )
     handler = CrudHandler(editor, args.method)
