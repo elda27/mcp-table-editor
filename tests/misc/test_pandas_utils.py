@@ -7,7 +7,7 @@ from mcp_table_editor.misc.pandas_utils import merge_index
 def test_merge_index_empty():
     """Test merging empty indexes."""
     df = pd.DataFrame({"A": [1, 2, 3]}, index=[0, 1, 2])
-    result = merge_index(df)
+    result = merge_index(df.index)
     expected = pd.Index([], df.index.dtype)
     assert_index_equal(result, expected)
 
@@ -16,7 +16,7 @@ def test_merge_index_single():
     """Test merging a single index."""
     df = pd.DataFrame({"A": [1, 2, 3]}, index=[0, 1, 2])
     idx1 = pd.Index([1, 0])
-    result = merge_index(df, idx1)
+    result = merge_index(df.index, idx1)
     expected = pd.Index([0, 1])
     assert_index_equal(result, expected)
 
@@ -26,7 +26,7 @@ def test_merge_index_non_overlapping():
     df = pd.DataFrame({"A": [1, 2, 3, 4]}, index=[0, 1, 2, 3])
     idx1 = pd.Index([0, 2])
     idx2 = pd.Index([1, 3])
-    result = merge_index(df, idx1, idx2)
+    result = merge_index(df.index, idx1, idx2)
     expected = pd.Index([0, 1, 2, 3])
     assert_index_equal(result, expected)
 
@@ -36,7 +36,7 @@ def test_merge_index_overlapping():
     df = pd.DataFrame({"A": [1, 2, 3, 4]}, index=[0, 1, 2, 3])
     idx1 = pd.Index([0, 1, 2])
     idx2 = pd.Index([1, 2, 3])
-    result = merge_index(df, idx1, idx2)
+    result = merge_index(df.index, idx1, idx2)
     expected = pd.Index([0, 1, 2, 3])
     assert_index_equal(result, expected)
 
@@ -46,7 +46,7 @@ def test_merge_index_reordering():
     df = pd.DataFrame({"A": [1, 2, 3, 4]}, index=[3, 1, 0, 2])
     idx1 = pd.Index([0, 1])
     idx2 = pd.Index([2, 3])
-    result = merge_index(df, idx1, idx2)
+    result = merge_index(df.index, idx1, idx2)
     # Expected order should match df.index
     expected = pd.Index([3, 1, 0, 2])
     assert_index_equal(result, expected)
@@ -57,7 +57,7 @@ def test_merge_index_with_extra_values():
     df = pd.DataFrame({"A": [1, 2, 3]}, index=[0, 1, 2])
     idx1 = pd.Index([0, 1, 5])  # 5 is not in df.index
     idx2 = pd.Index([1, 2, 6])  # 6 is not in df.index
-    result = merge_index(df, idx1, idx2)
+    result = merge_index(df.index, idx1, idx2)
     # Values 5 and 6 should be dropped by reindex().dropna()
     expected = pd.Index([0, 1, 2])
     assert_index_equal(result, expected)
@@ -68,7 +68,7 @@ def test_merge_index_string_index():
     df = pd.DataFrame({"A": [1, 2, 3]}, index=["c", "a", "b"])
     idx1 = pd.Index(["a", "c"])
     idx2 = pd.Index(["b", "a"])
-    result = merge_index(df, idx1, idx2)
+    result = merge_index(df.index, idx1, idx2)
     expected = pd.Index(["c", "a", "b"])  # Order matches df.index
     assert_index_equal(result, expected)
 
@@ -81,7 +81,7 @@ def test_merge_index_mixed_types_in_df_index_fails():
     df = pd.DataFrame({"A": [1, 2, 3]}, index=[1, 2.0, 0])
     idx1 = pd.Index([0, 1])
     idx2 = pd.Index([2.0])
-    result = merge_index(df, idx1, idx2)
+    result = merge_index(df.index, idx1, idx2)
     # Expected order should match df.index after sorting the union
     # Union: [0, 1, 2.0] -> Sorted: [0, 1, 2.0] -> Reindexed: [1, 2.0, 0]
     expected = pd.Index([1, 2.0, 0], dtype="float64")  # Pandas promotes to float

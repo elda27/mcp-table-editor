@@ -77,24 +77,22 @@ class Selector:
         df = self.df
         if self.range.is_column_range():
             if option_columns is not None:
-                df = df[merge_index(df, range.get_columns(), option_columns)]
+                df = df[merge_index(df.columns, range.get_columns(), option_columns)]
             else:
                 df = df[range.get_columns()]
-            return df
         if self.range.is_index_range():
             if option_rows is not None:
-                df = df.loc[merge_index(df, range.get_index(), option_rows)]
+                df = df.loc[merge_index(df.index, range.get_index(), option_rows)]
             else:
                 df = df.loc[range.get_index()]
-            return df.loc[range.get_index()]
         if self.range.is_location_range():
             index, columns = range.get_location()
             if option_columns is not None:
-                columns = merge_index(df, columns, option_columns)
+                columns = merge_index(df.columns, columns, option_columns)
             if option_rows is not None:
-                index = merge_index(df, index, option_rows)
-            return df.loc[index, columns]
-        raise KeyError("Invalid range")
+                index = merge_index(df.index, index, option_rows)
+            df = df.loc[index, columns]
+        return df
 
     def delete(self) -> pd.DataFrame:
         """Delete (set to NA) the selected range from the dataframe.
