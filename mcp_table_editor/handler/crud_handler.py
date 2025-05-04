@@ -5,7 +5,7 @@ from pydantic import BaseModel, Field
 
 from mcp_table_editor.editor import Editor, InsertRule, Range
 from mcp_table_editor.editor.range import Range
-from mcp_table_editor.handler.base import BaseHandler
+from mcp_table_editor.handler.base_handler import BaseHandler
 
 
 class Operation(str, Enum):
@@ -123,9 +123,8 @@ class CrudHandler(BaseHandler[CrudInputSchema, CrudOutputSchema]):
     input_schema = CrudInputSchema
     output_schema = CrudOutputSchema
 
-    def __init__(self, editor: Editor, operation: Operation, **kwargs):
+    def __init__(self, editor: Editor, **kwargs):
         self.editor = editor
-        self.operation = operation
 
     def handle(self, args: CrudInputSchema) -> CrudOutputSchema:
         """

@@ -5,7 +5,7 @@ import pytest
 
 from mcp_table_editor.editor import Editor, InsertRule, Range
 from mcp_table_editor.editor.config import EditorConfig
-from mcp_table_editor.handler.crud import (
+from mcp_table_editor.handler.crud_handler import (
     CrudHandler,
     CrudInputSchema,
     CrudOutputSchema,
@@ -45,7 +45,7 @@ def test_crud_handler_get_column(editor: Editor, sample_df: pd.DataFrame):
         insert_rule=InsertRule.ABOVE,
         insert_offset=None,
     )
-    handler = CrudHandler(editor, args.method)
+    handler = CrudHandler(editor)
     result = handler.handle(args)
 
     expected_df = sample_df[["A", "C"]]
@@ -68,7 +68,7 @@ def test_crud_handler_get_row(editor: Editor, sample_df: pd.DataFrame):
         insert_rule=InsertRule.ABOVE,
         insert_offset=None,
     )
-    handler = CrudHandler(editor, args.method)
+    handler = CrudHandler(editor)
     result = handler.handle(args)
 
     expected_df = sample_df.loc[[10, 12]]
@@ -89,7 +89,7 @@ def test_crud_handler_get_cell(editor: Editor, sample_df: pd.DataFrame):
         insert_rule=InsertRule.ABOVE,
         insert_offset=None,
     )
-    handler = CrudHandler(editor, args.method)
+    handler = CrudHandler(editor)
     result = handler.handle(args)
 
     expected_df = sample_df.loc[[10, 11], ["B", "C"]]
@@ -114,7 +114,7 @@ def test_crud_handler_update_column(editor: Editor, sample_df: pd.DataFrame):
         insert_rule=InsertRule.ABOVE,
         insert_offset=None,
     )
-    handler = CrudHandler(editor, args.method)
+    handler = CrudHandler(editor)
     result = handler.handle(args)
 
     expected_df = sample_df.copy()
@@ -140,7 +140,7 @@ def test_crud_handler_update_cell(editor: Editor, sample_df: pd.DataFrame):
         insert_rule=InsertRule.ABOVE,
         insert_offset=None,
     )
-    handler = CrudHandler(editor, args.method)
+    handler = CrudHandler(editor)
     result = handler.handle(args)
 
     expected_df = sample_df.copy()
@@ -166,7 +166,7 @@ def test_crud_handler_delete_column(editor: Editor, sample_df: pd.DataFrame):
         insert_rule=InsertRule.ABOVE,
         insert_offset=None,
     )
-    handler = CrudHandler(editor, args.method)
+    handler = CrudHandler(editor)
     result = handler.handle(args)
 
     expected_df = sample_df.copy()
@@ -197,7 +197,7 @@ def test_crud_handler_drop_column(editor: Editor, sample_df: pd.DataFrame):
         insert_rule=InsertRule.ABOVE,
         insert_offset=None,
     )
-    handler = CrudHandler(editor, args.method)
+    handler = CrudHandler(editor)
     result = handler.handle(args)
 
     expected_df = sample_df.drop(columns=["B"])
@@ -220,7 +220,7 @@ def test_crud_handler_drop_row(editor: Editor, sample_df: pd.DataFrame):
         insert_rule=InsertRule.ABOVE,
         insert_offset=None,
     )
-    handler = CrudHandler(editor, args.method)
+    handler = CrudHandler(editor)
     result = handler.handle(args)
 
     expected_df = sample_df.drop(index=[11])
@@ -246,7 +246,7 @@ def test_crud_handler_insert_column(editor: Editor, sample_df: pd.DataFrame):
         rows=None,
         insert_rule=InsertRule.ABOVE,  # Explicitly add default
     )
-    handler = CrudHandler(editor, args.method)
+    handler = CrudHandler(editor)
     result = handler.handle(args)
 
     expected_df = sample_df.copy()
