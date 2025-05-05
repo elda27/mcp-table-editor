@@ -1,12 +1,39 @@
 import typing
-from typing import Protocol, TypeVar
+from typing import Any, Protocol, Self, TypeVar
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from mcp_table_editor.editor._editor import Editor
 
 InputSchema = TypeVar("InputSchema", bound=BaseModel)
 OutputSchema = TypeVar("OutputSchema", bound=BaseModel)
+
+
+class BaseOutputSchema(BaseModel):
+
+    content: str | None = Field(
+        None,
+        description="CSV representation of the result. a result contains the selection of the table.",
+    )
+    json_content: list[dict[str, Any]] | None = Field(
+        None,
+        description="JSON representation of the result. a result contains the selection of the table.",
+    )
+
+    @classmethod
+    def from_dataframe(
+        cls,
+        df: typing.Any,
+        **kwargs,
+    ) -> Self:
+        """
+        Create a BaseOutputSchema from a DataFrame.
+        """
+        return cls(
+            content=df.to_csv(index=True),
+            json_content=df.to_dict(orient="records"),
+            **kwargs,
+        )
 
 
 class BaseHandler[

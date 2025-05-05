@@ -5,7 +5,7 @@ from pydantic import BaseModel, Field
 
 from mcp_table_editor.editor import Editor, InsertRule, Range
 from mcp_table_editor.editor._range import Range
-from mcp_table_editor.handler._base_handler import BaseHandler
+from mcp_table_editor.handler._base_handler import BaseHandler, BaseOutputSchema
 
 
 class Operation(str, Enum):
@@ -92,7 +92,7 @@ class CrudInputSchema(BaseModel):
     )
 
 
-class CrudOutputSchema(BaseModel):
+class CrudOutputSchema(BaseOutputSchema):
     """
     Output schema for CRUD operations.
     """
@@ -100,15 +100,6 @@ class CrudOutputSchema(BaseModel):
     method: Operation = Field(
         ...,
         description="CRUD method to be performed.",
-    )
-
-    response: str | None = Field(
-        None,
-        description="CSV representation of the result. a result contains the selection of the table.",
-    )
-    json_content: list[dict[str, Any]] | None = Field(
-        None,
-        description="JSON representation of the result. a result contains the selection of the table.",
     )
 
 
@@ -174,8 +165,7 @@ class CrudHandler(BaseHandler[CrudInputSchema, CrudOutputSchema]):
                 self.editor.columns, self.editor.index
             )
 
-        return CrudOutputSchema(
+        return CrudOutputSchema.from_dataframe(
+            response,
             method=args.method,
-            response=response.to_csv(),
-            json_content=response.to_dict(orient="records"),
         )

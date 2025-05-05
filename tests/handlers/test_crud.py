@@ -51,9 +51,9 @@ def test_crud_handler_get_column(editor: Editor, sample_df: pd.DataFrame):
     expected_df = sample_df[["A", "C"]]
 
     assert result.method == Operation.GET
-    assert isinstance(result.response, str)
+    assert isinstance(result.content, str)
     # Read CSV response back into DataFrame for comparison
-    result_df_from_csv = pd.read_csv(StringIO(result.response), index_col=0)
+    result_df_from_csv = pd.read_csv(StringIO(result.content), index_col=0)
     pd.testing.assert_frame_equal(result_df_from_csv, expected_df)
     assert result.json_content == expected_df.to_dict(orient="records")
 
@@ -74,7 +74,7 @@ def test_crud_handler_get_row(editor: Editor, sample_df: pd.DataFrame):
     expected_df = sample_df.loc[[10, 12]]
 
     assert result.method == Operation.GET
-    result_df_from_csv = pd.read_csv(StringIO(result.response), index_col=0)
+    result_df_from_csv = pd.read_csv(StringIO(result.content), index_col=0)
     pd.testing.assert_frame_equal(result_df_from_csv, expected_df)
     assert result.json_content == expected_df.to_dict(orient="records")
 
@@ -95,7 +95,7 @@ def test_crud_handler_get_cell(editor: Editor, sample_df: pd.DataFrame):
     expected_df = sample_df.loc[[10, 11], ["B", "C"]]
 
     assert result.method == Operation.GET
-    result_df_from_csv = pd.read_csv(StringIO(result.response), index_col=0)
+    result_df_from_csv = pd.read_csv(StringIO(result.content), index_col=0)
     pd.testing.assert_frame_equal(result_df_from_csv, expected_df)
     assert result.json_content == expected_df.to_dict(orient="records")
 
@@ -122,7 +122,7 @@ def test_crud_handler_update_column(editor: Editor, sample_df: pd.DataFrame):
 
     assert result.method == Operation.UPDATE
     # Update returns the modified selection
-    result_df_from_csv = pd.read_csv(StringIO(result.response), index_col=0)
+    result_df_from_csv = pd.read_csv(StringIO(result.content), index_col=0)
     pd.testing.assert_frame_equal(result_df_from_csv, expected_df)
     # Check original editor data is NOT changed (due to immutable selector)
     assert result.json_content == expected_df.to_dict(orient="records")
@@ -147,7 +147,7 @@ def test_crud_handler_update_cell(editor: Editor, sample_df: pd.DataFrame):
     expected_df.loc[10, ["A", "C"]] = int(update_value)
 
     assert result.method == Operation.UPDATE
-    result_df_from_csv = pd.read_csv(StringIO(result.response), index_col=0)
+    result_df_from_csv = pd.read_csv(StringIO(result.content), index_col=0)
     pd.testing.assert_frame_equal(result_df_from_csv, expected_df)
     assert result.json_content == expected_df.to_dict(orient="records")
     pd.testing.assert_frame_equal(editor.table, sample_df)
@@ -173,7 +173,7 @@ def test_crud_handler_delete_column(editor: Editor, sample_df: pd.DataFrame):
     expected_df[["A", "C"]] = pd.NA
 
     assert result.method == Operation.DELETE
-    result_df_from_csv = pd.read_csv(StringIO(result.response), index_col=0)
+    result_df_from_csv = pd.read_csv(StringIO(result.content), index_col=0)
     # Delete returns the selection that was set to NA
     pd.testing.assert_frame_equal(
         result_df_from_csv.astype(object).fillna(pd.NA),  # CSV reads NA as object
@@ -203,7 +203,7 @@ def test_crud_handler_drop_column(editor: Editor, sample_df: pd.DataFrame):
     expected_df = sample_df.drop(columns=["B"])
 
     assert result.method == Operation.DROP
-    result_df_from_csv = pd.read_csv(StringIO(result.response), index_col=0)
+    result_df_from_csv = pd.read_csv(StringIO(result.content), index_col=0)
     # Drop returns the dataframe *after* dropping
     pd.testing.assert_frame_equal(result_df_from_csv, expected_df)
     assert result.json_content == expected_df.to_dict(orient="records")
@@ -226,7 +226,7 @@ def test_crud_handler_drop_row(editor: Editor, sample_df: pd.DataFrame):
     expected_df = sample_df.drop(index=[11])
 
     assert result.method == Operation.DROP
-    result_df_from_csv = pd.read_csv(StringIO(result.response), index_col=0)
+    result_df_from_csv = pd.read_csv(StringIO(result.content), index_col=0)
     pd.testing.assert_frame_equal(result_df_from_csv, expected_df)
     assert result.json_content == expected_df.to_dict(orient="records")
     pd.testing.assert_frame_equal(editor.table, sample_df)
@@ -253,7 +253,7 @@ def test_crud_handler_insert_column(editor: Editor, sample_df: pd.DataFrame):
     expected_df.insert(1, "D", int(insert_value))
 
     assert result.method == Operation.INSERT
-    result_df_from_csv = pd.read_csv(StringIO(result.response), index_col=0)
+    result_df_from_csv = pd.read_csv(StringIO(result.content), index_col=0)
     pd.testing.assert_frame_equal(result_df_from_csv, expected_df)
     assert result.json_content == expected_df.to_dict(orient="records")
     pd.testing.assert_frame_equal(editor.table, sample_df)

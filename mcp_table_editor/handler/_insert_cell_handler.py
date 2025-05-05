@@ -11,7 +11,7 @@ class InsertCellInputSchema(CrudInputSchema):
     method: Operation = Field(Operation.INSERT)
 
 
-class InsertCellHandler(CrudHandler):
+class InsertContentHandler(CrudHandler):
     """
     Handler for INSERT cell operations.
     """

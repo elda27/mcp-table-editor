@@ -6,7 +6,7 @@ from mcp_table_editor.editor._config import EditorConfig
 from mcp_table_editor.handler._delete_content_handler import DeleteContentHandler
 from mcp_table_editor.handler._drop_content_handler import DropContentHandler
 from mcp_table_editor.handler._get_content_handler import GetContentHandler
-from mcp_table_editor.handler._insert_cell_handler import InsertCellHandler
+from mcp_table_editor.handler._insert_cell_handler import InsertContentHandler
 from mcp_table_editor.handler._remove_content_handler import RemoveContentHandler
 from mcp_table_editor.handler._update_content_handler import UpdateContentHandler
 
@@ -33,7 +33,7 @@ def test_insert_row_handler_instantiation(editor):
 
 
 def test_insert_cell_handler_instantiation(editor):
-    handler = InsertCellHandler(editor)
+    handler = InsertContentHandler(editor)
     assert handler.name == "insert_cell"
 
 
