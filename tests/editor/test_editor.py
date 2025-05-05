@@ -3,9 +3,9 @@ import pytest
 
 # Assuming Range, EditorConfig, Selector are importable from these paths
 # Adjust imports based on your actual project structure
-from mcp_table_editor.editor.config import EditorConfig
-from mcp_table_editor.editor.range import Range
-from mcp_table_editor.editor.selector import InsertRule, Selector
+from mcp_table_editor.editor._config import EditorConfig
+from mcp_table_editor.editor._range import Range
+from mcp_table_editor.editor._selector import InsertRule, Selector
 
 
 @pytest.fixture

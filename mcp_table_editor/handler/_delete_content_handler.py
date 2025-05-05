@@ -1,6 +1,6 @@
 from pydantic import Field
 
-from mcp_table_editor.handler.crud_handler import (
+from mcp_table_editor.handler._crud_handler import (
     CrudHandler,
     CrudInputSchema,
     Operation,

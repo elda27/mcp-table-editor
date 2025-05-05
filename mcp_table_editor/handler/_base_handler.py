@@ -3,7 +3,7 @@ from typing import Protocol, TypeVar
 
 from pydantic import BaseModel
 
-from mcp_table_editor.editor.editor import Editor
+from mcp_table_editor.editor._editor import Editor
 
 InputSchema = TypeVar("InputSchema", bound=BaseModel)
 OutputSchema = TypeVar("OutputSchema", bound=BaseModel)

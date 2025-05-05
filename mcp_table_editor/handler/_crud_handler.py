@@ -4,8 +4,8 @@ from typing import Any
 from pydantic import BaseModel, Field
 
 from mcp_table_editor.editor import Editor, InsertRule, Range
-from mcp_table_editor.editor.range import Range
-from mcp_table_editor.handler.base_handler import BaseHandler
+from mcp_table_editor.editor._range import Range
+from mcp_table_editor.handler._base_handler import BaseHandler
 
 
 class Operation(str, Enum):

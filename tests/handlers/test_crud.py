@@ -4,8 +4,8 @@ import pandas as pd
 import pytest
 
 from mcp_table_editor.editor import Editor, InsertRule, Range
-from mcp_table_editor.editor.config import EditorConfig
-from mcp_table_editor.handler.crud_handler import (
+from mcp_table_editor.editor._config import EditorConfig
+from mcp_table_editor.handler._crud_handler import (
     CrudHandler,
     CrudInputSchema,
     CrudOutputSchema,

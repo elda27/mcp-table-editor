@@ -3,8 +3,8 @@ from typing import Any
 
 import pandas as pd
 
-from mcp_table_editor.editor.config import EditorConfig
-from mcp_table_editor.editor.range import Range
+from mcp_table_editor.editor._config import EditorConfig
+from mcp_table_editor.editor._range import Range
 from mcp_table_editor.misc import merge_index
 
 
