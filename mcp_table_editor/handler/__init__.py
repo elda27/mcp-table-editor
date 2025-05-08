@@ -9,7 +9,7 @@ from mcp_table_editor.handler._sort_by_value_handler import SortByValueHandler
 from mcp_table_editor.handler._sort_handler import SortHandler
 from mcp_table_editor.handler._update_content_handler import UpdateContentHandler
 
-TOOL_HANDLERS = [
+TOOL_HANDLERS: list[type[BaseHandler]] = [
     CrudHandler,
     GetContentHandler,
     UpdateContentHandler,
@@ -20,6 +20,10 @@ TOOL_HANDLERS = [
     SortHandler,
     SortByValueHandler,
 ]
+
+TOOL_HANDLERS_DICT: dict[str, type[BaseHandler]] = {
+    handler.name: handler for handler in TOOL_HANDLERS
+}
 
 __all__ = [
     "BaseHandler",

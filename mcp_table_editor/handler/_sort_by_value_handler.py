@@ -32,6 +32,10 @@ class SortByValueHandler(BaseHandler[SortByValueInputSchema, SortByValueOutputSc
     name: str = "sort_by_value"
     input_schema: type[SortByValueInputSchema] = SortByValueInputSchema
     output_schema: type[SortByValueOutputSchema] = SortByValueOutputSchema
+    description: str = (
+        "Sort the table by the specified column(s) and order(s). "
+        "The order is determined by the values provided."
+    )
 
     def __init__(self, editor: Editor) -> None:
         self.editor = editor

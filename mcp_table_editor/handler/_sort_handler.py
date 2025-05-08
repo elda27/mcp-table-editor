@@ -32,6 +32,9 @@ class SortHandler(BaseHandler[SortInputSchema, SortOutputSchema]):
     name: str = "sort"
     input_schema: type[SortInputSchema] = SortInputSchema
     output_schema: type[SortOutputSchema] = SortOutputSchema
+    description: str = (
+        "Sort the table by the specified column(s). If no column is specified, sort by all columns."
+    )
 
     def __init__(self, editor: Editor) -> None:
         self.editor = editor
