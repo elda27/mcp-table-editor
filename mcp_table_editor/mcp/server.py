@@ -1,4 +1,5 @@
 from contextlib import asynccontextmanager
+from logging import basicConfig, getLogger
 from typing import AsyncIterator
 
 import mcp
@@ -12,13 +13,18 @@ from mcp_table_editor.editor import Editor
 from mcp_table_editor.handler import TOOL_HANDLERS
 from mcp_table_editor.mcp.handler_tool import HandlerTool
 
+basicConfig(
+    level="INFO",
+)
+_logger = getLogger(__name__)
+
 TOOLS: dict[str, HandlerTool] = {
     handler.name: HandlerTool(handler) for handler in TOOL_HANDLERS  #  type: ignore
 }
 
 
 @asynccontextmanager
-async def editor_context() -> AsyncIterator[Editor]:
+async def editor_context(server: Server) -> AsyncIterator[Editor]:
     editor = Editor()
     yield editor
 
@@ -27,21 +33,22 @@ app: Server = Server("mcp-table-editor", __version__, lifespan=editor_context)
 
 
 @app.list_tools()
-def list_tools() -> dict[str, Tool]:
+async def list_tools() -> list[Tool]:
     """
     List all tools.
     """
-    return {name: tool.get_mcp_tool() for name, tool in TOOLS.items()}
+    return [tool.get_mcp_tool() for tool in TOOLS.values()]
 
 
 @app.call_tool()
-def call_tool(name: str, args: dict) -> list[TextContent]:
+async def call_tool(name: str, args: dict) -> list[TextContent]:
     """
     Call a tool with the given name and arguments.
     """
     editor: Editor = app.request_context.lifespan_context
     if name not in TOOLS:
         raise ValueError(f"Tool {name} not found.")
+    _logger.info(f"Calling tool: {name} with args: {args}")
     tool = TOOLS[name]
     return tool.run(editor, args)
 
@@ -59,10 +66,12 @@ async def run():
                     experimental_capabilities={},
                 ),
             ),
+            raise_exceptions=True,
         )
 
 
 if __name__ == "__main__":
     import asyncio
 
+    _logger.info("Starting MCP Table Editor server...")
     asyncio.run(run())
