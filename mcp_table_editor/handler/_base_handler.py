@@ -3,7 +3,7 @@ from typing import Any, Protocol, Self, TypeVar
 
 from pydantic import BaseModel, Field
 
-from mcp_table_editor.editor._editor import Editor
+from mcp_table_editor.editor._in_memory_editor import InMemoryEditor
 
 InputSchema = TypeVar("InputSchema", bound=BaseModel)
 OutputSchema = TypeVar("OutputSchema", bound=BaseModel)
@@ -49,7 +49,7 @@ class BaseHandler[
     input_schema: type[InputSchema]
     output_schema: type[OutputSchema]
 
-    def __init__(self, editor: Editor, **kwargs): ...
+    def __init__(self, editor: InMemoryEditor, **kwargs): ...
 
     def handle(self, args: InputSchema) -> OutputSchema:
         """

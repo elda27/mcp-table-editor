@@ -3,7 +3,7 @@ from typing import Any, Sequence
 from mcp.types import TextContent, Tool
 from pydantic import BaseModel, Field, create_model
 
-from mcp_table_editor.editor import Editor
+from mcp_table_editor.editor import InMemoryEditor
 from mcp_table_editor.handler._base_handler import BaseHandler
 
 
@@ -31,7 +31,9 @@ class HandlerTool:
             inputSchema=self.handler.input_schema.model_json_schema(),
         )
 
-    def run(self, editor: Editor, args: dict[str, Any]) -> Sequence[TextContent]:
+    def run(
+        self, editor: InMemoryEditor, args: dict[str, Any]
+    ) -> Sequence[TextContent]:
         """
         Run the tool with the given input arguments.
         """

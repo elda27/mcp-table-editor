@@ -4,14 +4,26 @@ version = "0.1.1"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.10"
-dependencies = ["mcp>=1.6.0", "pandas>=2.2.3", "python-ulid>=3.0.0"]
+dependencies = [
+    "fastapi>=0.115.12",
+    "fastmcp>=2.3.0",
+    "mcp>=1.6.0",
+    "pandas>=2.2.3",
+    "python-ulid>=3.0.0",
+    "sqlalchemy>=2.0.40",
+]
 license = { text = "Apache-2.0" }
 
 [project.scripts]
 mcp-table-editor = "mcp_table_editor.mcp.server:main"
 
 [dependency-groups]
-dev = ["pandas-stubs>=2.2.3.250308", "pytest>=8.3.5", "pytest-cov>=6.1.1"]
+dev = [
+    "pandas-stubs>=2.2.3.250308",
+ "pytest>=8.3.5",
+ "pytest-cov>=6.1.1",
+ "uvicorn>=0.34.2",
+]
 
 [tool.uv]
 package = true

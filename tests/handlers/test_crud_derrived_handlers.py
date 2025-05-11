@@ -1,7 +1,7 @@
 import pandas as pd
 import pytest
 
-from mcp_table_editor.editor import Editor, InsertRule
+from mcp_table_editor.editor import InMemoryEditor, InsertRule
 from mcp_table_editor.editor._config import EditorConfig
 from mcp_table_editor.handler._delete_content_handler import DeleteContentHandler
 from mcp_table_editor.handler._drop_content_handler import DropContentHandler
@@ -24,7 +24,7 @@ def editor_config():
 
 @pytest.fixture
 def editor(sample_df, editor_config):
-    return Editor(table=sample_df.copy(), config=editor_config)
+    return InMemoryEditor(table=sample_df.copy(), config=editor_config)
 
 
 def test_insert_row_handler_instantiation(editor):

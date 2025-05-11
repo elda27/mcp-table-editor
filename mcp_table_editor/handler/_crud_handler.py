@@ -3,7 +3,7 @@ from typing import Any
 
 from pydantic import BaseModel, Field
 
-from mcp_table_editor.editor import Editor, InsertRule, Range
+from mcp_table_editor.editor import InMemoryEditor, InsertRule, Range
 from mcp_table_editor.editor._range import Range
 from mcp_table_editor.handler._base_handler import BaseHandler, BaseOutputSchema
 
@@ -114,7 +114,7 @@ class CrudHandler(BaseHandler[CrudInputSchema, CrudOutputSchema]):
     input_schema = CrudInputSchema
     output_schema = CrudOutputSchema
 
-    def __init__(self, editor: Editor, **kwargs):
+    def __init__(self, editor: InMemoryEditor, **kwargs):
         self.editor = editor
 
     def handle(self, args: CrudInputSchema) -> CrudOutputSchema:

@@ -4,12 +4,15 @@ from typing import AsyncIterator
 
 import mcp
 import mcp.server.stdio
+
+# import mcp.server.fastmcp
+# from fastmcp import FastMCP
 from mcp.server import NotificationOptions, Server
 from mcp.server.models import InitializationOptions
 from mcp.types import TextContent, Tool
 
 from mcp_table_editor._version import __version__
-from mcp_table_editor.editor import Editor
+from mcp_table_editor.editor import InMemoryEditor
 from mcp_table_editor.handler import TOOL_HANDLERS
 from mcp_table_editor.mcp.handler_tool import HandlerTool
 
@@ -24,12 +27,15 @@ TOOLS: dict[str, HandlerTool] = {
 
 
 @asynccontextmanager
-async def editor_context(server: Server) -> AsyncIterator[Editor]:
-    editor = Editor()
+async def editor_context(server: Server) -> AsyncIterator[InMemoryEditor]:
+    editor = InMemoryEditor()
     yield editor
 
 
 app: Server = Server("mcp-table-editor", __version__, lifespan=editor_context)
+# app: mcp.server.fastmcp.FastMCP = mcp.server.fastmcp.FastMCP(
+#     "mcp-table-editor", __version__, lifespan=editor_context
+# )
 
 
 @app.list_tools()
@@ -45,7 +51,7 @@ async def call_tool(name: str, args: dict) -> list[TextContent]:
     """
     Call a tool with the given name and arguments.
     """
-    editor: Editor = app.request_context.lifespan_context
+    editor: InMemoryEditor = app.request_context.lifespan_context
     if name not in TOOLS:
         raise ValueError(f"Tool {name} not found.")
     _logger.info(f"Calling tool: {name} with args: {args}")
@@ -53,7 +59,7 @@ async def call_tool(name: str, args: dict) -> list[TextContent]:
     return tool.run(editor, args)
 
 
-async def run():
+async def run_server():
     async with mcp.server.stdio.stdio_server() as (read_stream, write_stream):
         await app.run(
             read_stream,
@@ -74,4 +80,5 @@ if __name__ == "__main__":
     import asyncio
 
     _logger.info("Starting MCP Table Editor server...")
-    asyncio.run(run())
+    # asyncio.run(run())
+    asyncio.run(run_server())

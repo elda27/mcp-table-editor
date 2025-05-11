@@ -2,7 +2,7 @@ from typing import Any, Sequence
 
 from pydantic import BaseModel, Field
 
-from mcp_table_editor.editor import Editor
+from mcp_table_editor.editor import InMemoryEditor
 from mcp_table_editor.handler._base_handler import BaseHandler, BaseOutputSchema
 
 
@@ -37,7 +37,7 @@ class SortByValueHandler(BaseHandler[SortByValueInputSchema, SortByValueOutputSc
         "The order is determined by the values provided."
     )
 
-    def __init__(self, editor: Editor) -> None:
+    def __init__(self, editor: InMemoryEditor) -> None:
         self.editor = editor
 
     def handle(self, args: SortByValueInputSchema) -> SortByValueOutputSchema:

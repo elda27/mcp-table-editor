@@ -1,7 +1,7 @@
 import pandas as pd
 import pytest
 
-from mcp_table_editor.editor import Editor, EditorConfig
+from mcp_table_editor.editor import EditorConfig, InMemoryEditor
 from mcp_table_editor.handler._sort_handler import SortHandler, SortInputSchema
 
 
@@ -18,7 +18,7 @@ def editor_config():
 
 @pytest.fixture
 def editor(sample_df, editor_config):
-    return Editor(table=sample_df.copy(), config=editor_config)
+    return InMemoryEditor(table=sample_df.copy(), config=editor_config)
 
 
 def test_sort_handler_ascending(editor, sample_df):

@@ -3,7 +3,7 @@ from io import StringIO
 import pandas as pd
 import pytest
 
-from mcp_table_editor.editor import Editor, InsertRule, Range
+from mcp_table_editor.editor import InMemoryEditor, InsertRule, Range
 from mcp_table_editor.editor._config import EditorConfig
 from mcp_table_editor.handler._crud_handler import (
     CrudHandler,
@@ -27,15 +27,15 @@ def editor_config() -> EditorConfig:
 
 
 @pytest.fixture
-def editor(sample_df: pd.DataFrame, editor_config: EditorConfig) -> Editor:
+def editor(sample_df: pd.DataFrame, editor_config: EditorConfig) -> InMemoryEditor:
     """Fixture for Editor."""
-    return Editor(table=sample_df.copy(), config=editor_config)
+    return InMemoryEditor(table=sample_df.copy(), config=editor_config)
 
 
 # --- Test GET Operations ---
 
 
-def test_crud_handler_get_column(editor: Editor, sample_df: pd.DataFrame):
+def test_crud_handler_get_column(editor: InMemoryEditor, sample_df: pd.DataFrame):
     """Test GET operation with column selection."""
     args = CrudInputSchema(
         method=Operation.GET,
@@ -58,7 +58,7 @@ def test_crud_handler_get_column(editor: Editor, sample_df: pd.DataFrame):
     assert result.json_content == expected_df.to_dict(orient="records")
 
 
-def test_crud_handler_get_row(editor: Editor, sample_df: pd.DataFrame):
+def test_crud_handler_get_row(editor: InMemoryEditor, sample_df: pd.DataFrame):
     """Test GET operation with row selection."""
     args = CrudInputSchema(
         method=Operation.GET,
@@ -79,7 +79,7 @@ def test_crud_handler_get_row(editor: Editor, sample_df: pd.DataFrame):
     assert result.json_content == expected_df.to_dict(orient="records")
 
 
-def test_crud_handler_get_cell(editor: Editor, sample_df: pd.DataFrame):
+def test_crud_handler_get_cell(editor: InMemoryEditor, sample_df: pd.DataFrame):
     """Test GET operation with cell selection."""
     args = CrudInputSchema(
         method=Operation.GET,
@@ -103,7 +103,7 @@ def test_crud_handler_get_cell(editor: Editor, sample_df: pd.DataFrame):
 # --- Test UPDATE Operations ---
 
 
-def test_crud_handler_update_column(editor: Editor, sample_df: pd.DataFrame):
+def test_crud_handler_update_column(editor: InMemoryEditor, sample_df: pd.DataFrame):
     """Test UPDATE operation with column selection."""
     update_value = 100
     args = CrudInputSchema(
@@ -129,7 +129,7 @@ def test_crud_handler_update_column(editor: Editor, sample_df: pd.DataFrame):
     pd.testing.assert_frame_equal(editor.table, sample_df)
 
 
-def test_crud_handler_update_cell(editor: Editor, sample_df: pd.DataFrame):
+def test_crud_handler_update_cell(editor: InMemoryEditor, sample_df: pd.DataFrame):
     """Test UPDATE operation with cell selection."""
     update_value = 0
     args = CrudInputSchema(
@@ -156,7 +156,7 @@ def test_crud_handler_update_cell(editor: Editor, sample_df: pd.DataFrame):
 # --- Test DELETE Operations ---
 
 
-def test_crud_handler_delete_column(editor: Editor, sample_df: pd.DataFrame):
+def test_crud_handler_delete_column(editor: InMemoryEditor, sample_df: pd.DataFrame):
     """Test DELETE operation with column selection."""
     args = CrudInputSchema(
         method=Operation.DELETE,
@@ -187,7 +187,7 @@ def test_crud_handler_delete_column(editor: Editor, sample_df: pd.DataFrame):
 # --- Test DROP Operations ---
 
 
-def test_crud_handler_drop_column(editor: Editor, sample_df: pd.DataFrame):
+def test_crud_handler_drop_column(editor: InMemoryEditor, sample_df: pd.DataFrame):
     """Test DROP operation with column selection."""
     args = CrudInputSchema(
         method=Operation.DROP,
@@ -210,7 +210,7 @@ def test_crud_handler_drop_column(editor: Editor, sample_df: pd.DataFrame):
     pd.testing.assert_frame_equal(editor.table, sample_df)
 
 
-def test_crud_handler_drop_row(editor: Editor, sample_df: pd.DataFrame):
+def test_crud_handler_drop_row(editor: InMemoryEditor, sample_df: pd.DataFrame):
     """Test DROP operation with row selection."""
     args = CrudInputSchema(
         method=Operation.DROP,
@@ -235,7 +235,7 @@ def test_crud_handler_drop_row(editor: Editor, sample_df: pd.DataFrame):
 # --- Test INSERT Operations ---
 
 
-def test_crud_handler_insert_column(editor: Editor, sample_df: pd.DataFrame):
+def test_crud_handler_insert_column(editor: InMemoryEditor, sample_df: pd.DataFrame):
     """Test INSERT operation for a column."""
     insert_value = 10
     args = CrudInputSchema(

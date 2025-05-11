@@ -2,7 +2,7 @@ import pandas as pd
 import pytest
 
 from mcp_table_editor.editor._config import EditorConfig
-from mcp_table_editor.editor._editor import Editor
+from mcp_table_editor.editor._in_memory_editor import InMemoryEditor
 from mcp_table_editor.handler._sort_by_value_handler import (
     SortByValueHandler,
     SortByValueInputSchema,
@@ -17,7 +17,7 @@ def sample_df():
 
 @pytest.fixture
 def editor(sample_df):
-    return Editor(table=sample_df.copy(), config=EditorConfig.default())
+    return InMemoryEditor(table=sample_df.copy(), config=EditorConfig.default())
 
 
 def test_sort_by_value_handler_single_column(editor, sample_df):

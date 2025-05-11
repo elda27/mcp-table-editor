@@ -3,12 +3,13 @@ from typing import Any, Iterable, Protocol, Sequence, TypeVar
 import pandas as pd
 from ulid import ULID
 
+from mcp_table_editor.editor._base import BaseEditor
 from mcp_table_editor.editor._config import EditorConfig
 from mcp_table_editor.editor._range import Range
 from mcp_table_editor.editor._selector import Selector
 
 
-class Editor:
+class InMemoryEditor(BaseEditor):
     def __init__(
         self,
         table: pd.DataFrame | None = None,
@@ -22,7 +23,54 @@ class Editor:
         self.schema: dict[str, str] = {}
         self.config = config or EditorConfig.default()
 
+    def query_expr(self, query: str) -> pd.DataFrame:
+        """
+        Query the table with a given query expression.
+
+        Parameters
+        ----------
+        query : str
+            The query expression to filter the table.
+
+        Returns
+        -------
+        Selector
+            A Selector object that contains the filtered table.
+        """
+        return self.table.query(query)
+
+    def query_sql(self, query: str) -> pd.DataFrame:
+        """
+        Query the table with a given SQL expression.
+
+        Parameters
+        ----------
+        query : str
+            The SQL expression to filter the table.
+
+        Returns
+        -------
+        Selector
+            A Selector object that contains the filtered table.
+        """
+        raise NotImplementedError(
+            "SQL query is not implemented yet. Please use query_expr instead."
+        )
+
     def select(self, range: Range) -> Selector:
+        """Select a range of cells in the table.
+        This method returns a Selector object that allows you to manipulate the selected cells.
+
+        Parameters
+        ----------
+        range : Range
+            The range of cells to select. The range is defined by the row and column indices.
+
+        Returns
+        -------
+        Selector
+            A Selector object that contains the selected cells.
+        """
         return Selector(self.table, range, self.config)
 
     def select_all(self) -> Selector:
@@ -30,6 +78,21 @@ class Editor:
         Select all cells in the table.
         """
         return self.select(Range(row=self.table.index, column=self.table.columns))
+
+    def query(self, query: str) -> Selector:
+        """
+        Query the table with a given query string.
+
+        Parameters
+        ----------
+        query : str
+            The query string to filter the table.
+        """
+        return Selector(
+            self.table.query(query),
+            Range(row=self.table.index, column=self.table.columns),
+            self.config,
+        )
 
     def sort(
         self, by: str | Sequence[str] | None = None, ascending: bool = True
