@@ -5,6 +5,7 @@ from ulid import ULID
 
 from mcp_table_editor.editor._base import BaseEditor
 from mcp_table_editor.editor._config import EditorConfig
+from mcp_table_editor.editor._in_memory_selector import InMemorySelector
 from mcp_table_editor.editor._range import Range
 from mcp_table_editor.editor._selector import Selector
 
@@ -71,7 +72,7 @@ class InMemoryEditor(BaseEditor):
         Selector
             A Selector object that contains the selected cells.
         """
-        return Selector(self.table, range, self.config)
+        return InMemorySelector(self.table, range, self.config)
 
     def select_all(self) -> Selector:
         """
@@ -88,7 +89,7 @@ class InMemoryEditor(BaseEditor):
         query : str
             The query string to filter the table.
         """
-        return Selector(
+        return InMemorySelector(
             self.table.query(query),
             Range(row=self.table.index, column=self.table.columns),
             self.config,
