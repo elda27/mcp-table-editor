@@ -1,6 +1,6 @@
 [project]
 name = "mcp-table-editor"
-version = "0.1.1"
+version = "0.1.2"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -20,9 +20,9 @@ mcp-table-editor = "mcp_table_editor.mcp.server:main"
 [dependency-groups]
 dev = [
     "pandas-stubs>=2.2.3.250308",
- "pytest>=8.3.5",
- "pytest-cov>=6.1.1",
- "uvicorn>=0.34.2",
+    "pytest>=8.3.5",
+    "pytest-cov>=6.1.1",
+    "uvicorn>=0.34.2",
 ]
 
 [tool.uv]
